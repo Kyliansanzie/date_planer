@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#a91850">
+<title>Our Date Planner ♡</title>
+<style>
+:root{--pink:#a91850;--pink2:#cc3e75;--light:#fff2f7;--pale:#f9d8e5;--ink:#4b1730;--muted:#95677a;--white:#fff;--line:#efbfd0;--shadow:0 20px 60px #68102f1c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:ui-rounded,"Segoe UI",system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 12% 12%,#fbd8e5,transparent 30%),radial-gradient(circle at 90% 85%,#f6d1e0,transparent 28%),var(--light);display:flex;flex-direction:column}
+button,input,textarea{font:inherit}button{cursor:pointer}
+header{height:68px;display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:.2em;font-size:.82rem;color:var(--pink)}
+header span{color:var(--ink)}
+main{width:min(820px,calc(100% - 28px));margin:0 auto;flex:1;display:flex;align-items:center;justify-content:center;padding:8px 0 30px}
+.deck{width:100%;position:relative}
+.slide{display:none;min-height:min(650px,calc(100dvh - 130px));background:#ffffffed;border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow);padding:clamp(22px,5vw,48px);animation:appear .35s ease;position:relative;overflow:hidden}
+.slide.active{display:flex;flex-direction:column;justify-content:center}
+.slide:before{content:"";position:absolute;width:210px;height:210px;border-radius:50%;background:#fce1eb;right:-110px;top:-110px;pointer-events:none}
+.slide>*{position:relative}
+.progress-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:25px;color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.progress-track{height:5px;background:#f7dce7;border-radius:9px;overflow:hidden;margin-bottom:25px}
+.progress-fill{height:100%;width:14.285%;background:linear-gradient(90deg,var(--pink),var(--pink2));border-radius:9px;transition:width .3s}
+.kicker{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;background:#fff2f7;border:1px solid var(--line);border-radius:99px;color:var(--pink);font-weight:800;font-size:.78rem;width:max-content;max-width:100%}
+h1,h2,h3,p{margin-top:0}
+h1{font:clamp(2.5rem,8vw,5rem)/.98 Georgia,serif;letter-spacing:-.055em;color:var(--pink);margin:22px 0 16px}
+h2{font:clamp(1.9rem,5vw,3rem)/1.05 Georgia,serif;color:var(--pink);letter-spacing:-.04em;margin:10px 0 12px}
+h3{color:var(--pink);font-size:1.1rem}
+p{line-height:1.7;color:var(--muted)}
+.center{text-align:center;align-items:center!important}
+.center p{max-width:510px}
+.hero-heart{font-size:4rem;display:block;animation:pulse 1.6s infinite}
+.btn{border:0;border-radius:14px;padding:13px 20px;font-weight:850;transition:transform .18s,background .18s,box-shadow .18s}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #df82a6;outline-offset:3px}
+.primary{background:var(--pink);color:white;box-shadow:0 9px 22px #a9185030}
+.primary:hover{background:#80113c;transform:translateY(-2px)}
+.secondary{background:white;color:var(--pink);border:1px solid var(--line)}
+.navigation{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:26px}
+.navigation .btn{min-width:120px}
+.nav-note{font-size:.78rem;color:var(--muted);text-align:center}
+label{font-weight:800;color:var(--ink)}
+.field{display:flex;flex-direction:column;gap:9px;margin:18px 0}
+input[type=date],input[type=text],textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;color:var(--ink)}
+textarea{min-height:120px;resize:vertical;line-height:1.6}
+.small{font-size:.82rem;color:var(--muted);line-height:1.5}
+.envelope-stage{height:235px;width:min(360px,100%);margin:8px auto 10px;position:relative}
+.letter{position:absolute;left:9%;width:82%;height:170px;bottom:27px;background:#fffafc;border:1px solid var(--line);border-radius:10px;padding:18px;text-align:center;display:flex;align-items:center;justify-content:center;transition:transform .8s,bottom .8s;z-index:1;box-shadow:0 5px 18px #7b16351a}
+.letter strong{font:clamp(1.25rem,4vw,1.65rem)/1.25 Georgia,serif;color:var(--pink)}
+.envelope{position:absolute;bottom:10px;left:0;width:100%;height:145px;background:#e98cad;border-radius:8px 8px 12px 12px;overflow:hidden;z-index:3;box-shadow:0 12px 24px #79133b20}
+.env-left{position:absolute;inset:0;background:#d96f98;clip-path:polygon(0 0,52% 55%,0 100%)}
+.env-right{position:absolute;inset:0;background:#cf5d89;clip-path:polygon(100% 0,48% 55%,100% 100%)}
+.env-bottom{position:absolute;inset:0;background:#e98cad;clip-path:polygon(0 100%,50% 38%,100% 100%)}
+.flap{position:absolute;inset:0;background:#f2b3ca;clip-path:polygon(0 0,100% 0,50% 64%);transform-origin:top;transition:transform .7s;z-index:5}
+.seal{position:absolute;z-index:6;left:50%;top:55%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:var(--pink);color:white;display:grid;place-items:center;font-size:1.2rem}
+.envelope-stage.open .flap{transform:rotateX(180deg);z-index:0}
+.envelope-stage.open .seal{opacity:0}
+.envelope-stage.open .letter{transform:translateY(-105px);bottom:24px;z-index:4}
+.arrow-track{height:48px;width:min(360px,100%);margin:0 auto;background:#fbe1eb;border:1px solid var(--line);border-radius:999px;padding:5px;display:flex;align-items:center;position:relative;touch-action:pan-y}
+.arrow-track>span{position:absolute;inset:0;display:grid;place-items:center;color:#a55a78;font-size:.8rem;font-weight:750;pointer-events:none}
+.arrow-knob{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:50%;background:var(--pink);color:white;z-index:2;touch-action:none;user-select:none;box-shadow:0 4px 12px #b51f5b55}
+.question{display:none;text-align:center;margin-top:18px}
+.question.show{display:block;animation:appear .4s}
+.answer-row{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;min-height:56px}
+#noBtn{position:relative}
+#yesMessage{display:none;background:#fff0f6;border-radius:14px;padding:14px;margin-top:15px;color:var(--pink);line-height:1.6}
+#yesMessage.show{display:block}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}
+.option{position:relative}
+.option input{position:absolute;opacity:0}
+.option label{display:flex;align-items:center;gap:10px;min-height:58px;padding:12px;border:1px solid var(--line);border-radius:15px;background:white;cursor:pointer;transition:.2s}
+.option label span{font-size:1.25rem}
+.option input:checked+label{background:#ffedf4;border:2px solid var(--pink);color:var(--pink);box-shadow:0 5px 14px #b51f5b16}
+.option input:checked+label:after{content:"✓";margin-left:auto;font-weight:900}
+.option input:focus-visible+label{outline:3px solid #df82a6;outline-offset:2px}
+.ticket{display:grid;grid-template-columns:1fr 120px;border:2px solid var(--pink);border-radius:20px;overflow:hidden;background:white;margin-top:10px}
+.ticket-main{padding:clamp(16px,3.5vw,27px)}
+.ticket-side{background:var(--pink);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:13px;padding:15px}
+.ticket-side .heart{font-size:2rem}
+.ticket-side .vertical{writing-mode:vertical-rl;letter-spacing:.18em;font-weight:900;font-size:.7rem}
+.ticket-side .code{font-size:.65rem;overflow-wrap:anywhere}
+.ticket-kicker{font-size:.7rem;font-weight:900;letter-spacing:.15em;color:var(--pink);text-transform:uppercase}
+.ticket-title{font:clamp(1.7rem,4vw,2.4rem)/1.05 Georgia,serif;color:var(--pink);margin:9px 0}
+.ticket-sub{font-size:.8rem;color:var(--muted);margin-bottom:18px}
+.ticket-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}
+.detail-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:900;margin-bottom:5px}
+.detail-value{font-weight:800;line-height:1.45;overflow-wrap:anywhere;font-size:.9rem}
+.ticket-message{margin-top:15px;padding:12px;background:#fff2f7;border-radius:12px;white-space:pre-wrap;line-height:1.5;font-size:.9rem}
+.ticket-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.ticket-actions .btn{flex:1}
+.toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#4b1730;color:white;padding:12px 17px;border-radius:99px;transition:.25s;z-index:50;font-size:.85rem;text-align:center;max-width:calc(100% - 24px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.confetti{position:fixed;top:-20px;z-index:50;pointer-events:none;animation:fall 2.5s linear forwards}
+@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{50%{transform:scale(1.1)}}
+@keyframes fall{to{transform:translateY(110vh) rotate(600deg);opacity:.1}}
+@media(max-width:520px){header{height:56px}.slide{min-height:calc(100dvh - 100px);padding:22px 18px;border-radius:24px}.options{grid-template-columns:1fr}.navigation .btn{min-width:95px;padding:12px 14px}.ticket{grid-template-columns:1fr}.ticket-side{flex-direction:row;min-height:65px}.ticket-side .vertical{writing-mode:initial}.ticket-side .code{margin-left:auto}.ticket-side .heart{font-size:1.5rem}.progress-top{margin-bottom:18px}.progress-track{margin-bottom:18px}}
+@media print{@page{size:A5 landscape;margin:8mm}body{background:white;display:block}header,.slide:not(#slide-ticket),.progress-top,.progress-track,.navigation,.no-print{display:none!important}main{display:block;width:100%;padding:0;margin:0}.deck{width:100%}#slide-ticket{display:flex!important;min-height:0;padding:0;border:0;box-shadow:none;background:white}#slide-ticket:before,#slide-ticket>h2,#slide-ticket>p,#slide-ticket>.kicker{display:none!important}.ticket{margin:0;width:100%;box-shadow:none;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header>♡ <span>DATE</span>&nbsp; PLANNER ♡</header>
+<main><div class="deck">
+<div class="progress-top"><span id="stepLabel">WELCOME, LOVE</span><span id="stepCount">01 / 07</span></div>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+<section class="slide active center" id="slide-welcome" data-label="WELCOME, LOVE">
+  <span class="hero-heart">💗</span>
+  <div class="kicker">✦ made with love, just for you ✦</div>
+  <h1>A little date<br>with my favorite person.</h1>
+  <p>Satu amplop kecil, satu rencana manis, dan satu tiket untuk hari spesial kita. Yuk, isi bareng-bareng!</p>
+  <div class="navigation" style="width:100%;justify-content:center"><button class="btn primary next">Mulai date planner →</button></div>
+</section>
+
+<section class="slide center" id="slide-envelope" data-label="A LITTLE QUESTION">
+  <div class="kicker">01 · A LITTLE SURPRISE</div><h2>Ada surat buat kamu… 💌</h2>
+  <p>Geser panah ke kanan sampai ujung untuk membuka amplopnya.</p>
+  <div class="envelope-stage" id="envelope">
+    <div class="letter"><strong>Mau jalan-jalan<br>bareng aku ga? 💗</strong></div>
+    <div class="envelope"><div class="env-left"></div><div class="env-right"></div><div class="env-bottom"></div><div class="flap"></div><div class="seal">♥</div></div>
+  </div>
+  <div class="arrow-track" id="arrowTrack"><button class="arrow-knob" id="arrowKnob" aria-label="Geser untuk membuka amplop">➜</button><span id="arrowText">tarik aku ke kanan →</span></div>
+  <p class="small" id="openStatus">Geser panah atau ketuk panah untuk membuka surat.</p>
+  <div class="question" id="question">
+    <h3>Mau jalan-jalan bareng aku ga, sayang? 🥺</h3>
+    <div class="answer-row"><button class="btn primary" id="yesBtn">YES! 💗</button><button class="btn secondary" id="noBtn">No 🙈</button></div>
+    <div id="yesMessage">YAYYY! 🥹💕 Aku udah nggak sabar bikin kenangan manis bareng kamu!</div>
+  </div>
+  <div class="navigation"><button class="btn secondary prev">← Kembali</button><span class="nav-note">satu pertanyaan manis dulu</span><button class="btn primary next">Lanjut →</button></div>
+</section>
+
+<section class="slide" id="slide-date" data-label="PICK A DATE">
+  <div class="kicker">02 · PICK OUR DAY</div><h2>Kapan sayangku free? 📅</h2><p>Pilih tanggal yang paling nyaman buat kita ketemu. Tanggal wajib dipilih sebelum lanjut.</p>
+  <div class="field"><label for="dateInput">Tanggal date kita</label><input type="date" id="dateInput" required><span class="small">Pilih hari yang bikin kamu bisa menikmati waktu bareng tanpa buru-buru.</span></div>
+  <div class="navigation"><button class="btn secondary prev">← Kembali</button><span class="nav-note">pilih hari favoritmu</span><button class="btn primary next">Lanjut →</button></div>
+</section>
+
+<section class="slide" id="slide-plans" data-label="DATE IDEAS">
+  <div class="kicker">03 · OUR LITTLE ADVENTURE</div><h2>Nanti kita ngapain? ✨</h2><p>Pilih minimal satu kegiatan yang ingin kamu lakukan bareng aku sebelum lanjut.</p>
+  <div class="options" id="planChoices">
+    <div class="option"><input type="checkbox" id="p1" value="Makan malam"><label for="p1"><span>🍝</span>Makan malam</label></div>
+    <div class="option"><input type="checkbox" id="p2" value="Nonton film"><label for="p2"><span>🎬</span>Nonton film</label></div>
+    <div class="option"><input type="checkbox" id="p3" value="Jalan-jalan"><label for="p3"><span>🌷</span>Jalan-jalan</label></div>
+    <div class="option"><input type="checkbox" id="p4" value="Main game"><label for="p4"><span>🎮</span>Main game</label></div>
+    <div class="option"><input type="checkbox" id="p5" value="Belanja"><label for="p5"><span>🛍️</span>Belanja</label></div>
+    <div class="option"><input type="checkbox" id="p6" value="Ngopi bareng"><label for="p6"><span>☕</span>Ngopi bareng</label></div>
+    <div class="option"><input type="checkbox" id="p7" value="Melukis"><label for="p7"><span>🎨</span>Melukis</label></div>
+    <div class="option"><input type="checkbox" id="p8" value="Konser"><label for="p8"><span>🎵</span>Konser</label></div>
+  </div>
+  <div class="navigation"><button class="btn secondary prev">← Kembali</button><span class="nav-note">boleh pilih lebih dari satu</span><button class="btn primary next">Lanjut →</button></div>
+</section>
+
+<section class="slide" id="slide-dress" data-label="DRESSCODE">
+  <div class="kicker">04 · WHAT TO WEAR</div><h2>Dresscode date kita? 👗</h2><p>Pilih satu dresscode. Yang penting nyaman dan senang bareng!</p>
+  <div class="options" id="dressChoices">
+    <div class="option"><input type="radio" name="dress" id="d1" value="Casual"><label for="d1"><span>👟</span>Casual</label></div>
+    <div class="option"><input type="radio" name="dress" id="d2" value="Semi formal"><label for="d2"><span>🧥</span>Semi formal</label></div>
+    <div class="option"><input type="radio" name="dress" id="d3" value="Couple outfit"><label for="d3"><span>💑</span>Couple outfit</label></div>
+    <div class="option"><input type="radio" name="dress" id="d4" value="Formal"><label for="d4"><span>👔</span>Formal</label></div>
+    <div class="option"><input type="radio" name="dress" id="d5" value="Bebas"><label for="d5"><span>🩷</span>Bebas</label></div>
+  </div>
+  <div class="navigation"><button class="btn secondary prev">← Kembali</button><span class="nav-note">matching sama kamu ♡</span><button class="btn primary next">Lanjut →</button></div>
+</section>
+
+<section class="slide" id="slide-message" data-label="A LITTLE MESSAGE">
+  <div class="kicker">05 · FROM YOUR HEART</div><h2>Ada pesan buat aku? 💌</h2><p>Tulis pesan, request, atau hal kecil yang ingin kamu sampaikan untuk date kita.</p>
+  <div class="field"><label for="nameInput">Nama panggilan (opsional)</label><input id="nameInput" type="text" maxlength="40" placeholder="Contoh: Sayang, Bubu, Cinta…"></div>
+  <div class="field"><label for="messageInput">Pesanmu</label><textarea id="messageInput" maxlength="500" placeholder="Aku pengen nanti kita…"></textarea><span class="small"><span id="charCount">0</span>/500 karakter. Pesan ini akan masuk ke tiket date.</span></div>
+  <div class="navigation"><button class="btn secondary prev">← Kembali</button><span class="nav-note">pesan kecil, arti besar ♡</span><button class="btn primary" id="makeTicket">Buat tiket →</button></div>
+</section>
+
+<section class="slide" id="slide-ticket" data-label="YOUR DATE TICKET">
+  <div class="kicker">06 · IT'S A DATE!</div><h2>Tiket date kita 🎟️</h2><p>Semua pilihanmu sudah dirangkum. Simpan tiket ini atau cetak untuk kenang-kenangan.</p>
+  <div class="ticket" id="ticket">
+    <div class="ticket-main">
+      <div class="ticket-kicker">♡ admit two hearts ♡</div><div class="ticket-title">Our Date Ticket</div><div class="ticket-sub">A little plan with my favorite person.</div>
+      <div class="ticket-grid">
+        <div><div class="detail-label">Untuk</div><div class="detail-value" id="tName">My favorite person ♡</div></div>
+        <div><div class="detail-label">Tanggal date</div><div class="detail-value" id="tDate">Belum ditentukan</div></div>
+        <div><div class="detail-label">Rencana kita</div><div class="detail-value" id="tPlans">Belum dipilih</div></div>
+        <div><div class="detail-label">Dresscode</div><div class="detail-value" id="tDress">Belum dipilih</div></div>
+      </div>
+      <div class="ticket-message"><div class="detail-label">A little message</div><div id="tMessage">Can't wait to spend time with you. ♥</div></div>
+    </div>
+    <div class="ticket-side"><div class="heart">♥</div><div class="vertical">DATE • LOVE • REPEAT</div><div class="code" id="ticketCode">LOVE-001</div></div>
+  </div>
+  <div class="ticket-actions no-print"><button class="btn primary" id="downloadBtn">Unduh tiket ↓</button><button class="btn secondary" id="printBtn">Print / PDF 🖨️</button><button class="btn secondary" id="shareBtn">Kirim tiket 💌</button></div>
+  <div class="navigation no-print"><button class="btn secondary prev">← Edit pilihan</button><span class="nav-note">made with love ♡</span><button class="btn primary" id="restartBtn">Mulai ulang ↻</button></div>
+</section>
+</div></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{
+ const $=id=>document.getElementById(id);
+ const slides=[...document.querySelectorAll('.slide')];
+ let current=0,opened=false,dragging=false,offset=0,startX=0,knobStart=0;
+ function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),2500)}
+ function showSlide(index){
+   current=Math.max(0,Math.min(slides.length-1,index));
+   slides.forEach((s,i)=>s.classList.toggle('active',i===current));
+   $('stepLabel').textContent=slides[current].dataset.label;
+   $('stepCount').textContent=String(current+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+   $('progressFill').style.width=((current+1)/slides.length*100)+'%';
+   window.scrollTo({top:0,behavior:'smooth'});
+ }
+ function validateSlide(index){
+   // Validasi per langkah: pengguna tidak dapat melewati bagian wajib yang belum diisi.
+   if(index===1){
+     // Amplop harus dibuka dan pertanyaan dijawab YES sebelum melanjutkan.
+     if(!opened){toast('Buka amplopnya dulu dengan menggeser panah 💌');return false}
+     if(!$('yesMessage').classList.contains('show')){toast('Jawab YES dulu sebelum lanjut ya 💗');return false}
+   }
+   if(index===2 && !$('dateInput').value){
+     toast('Pilih tanggal date dulu ya! 📅');$('dateInput').focus();return false;
+   }
+   if(index===3 && ![...document.querySelectorAll('#planChoices input:checked')].length){
+     toast('Pilih minimal satu aktivitas date ✨');return false;
+   }
+   if(index===4 && !document.querySelector('input[name="dress"]:checked')){
+     toast('Pilih dresscode dulu ya 👗');return false;
+   }
+   return true;
+ }
+ document.querySelectorAll('.next').forEach(b=>b.addEventListener('click',()=>{
+   if(validateSlide(current))showSlide(current+1);
+ }));
+ document.querySelectorAll('.prev').forEach(b=>b.addEventListener('click',()=>showSlide(current-1)));
+ function setOffset(v){
+   const max=Math.max(0,$('arrowTrack').clientWidth-$('arrowKnob').offsetWidth-10);
+   offset=Math.max(0,Math.min(max,v));$('arrowKnob').style.transform=`translateX(${offset}px)`;
+   if(max&&offset/max>.88)openEnvelope();
+ }
+ function openEnvelope(){
+   if(opened)return;opened=true;setOffset($('arrowTrack').clientWidth-$('arrowKnob').offsetWidth-10);
+   $('envelope').classList.add('open');$('question').classList.add('show');$('arrowText').textContent='Surat terbuka! 💌';$('openStatus').textContent='Suratnya sudah terbuka! Jawab pertanyaan di bawah ya.';
+ }
+ $('arrowKnob').addEventListener('pointerdown',e=>{if(opened)return;dragging=true;startX=e.clientX;knobStart=offset;$('arrowKnob').setPointerCapture(e.pointerId)});
+ $('arrowKnob').addEventListener('pointermove',e=>{if(dragging)setOffset(knobStart+e.clientX-startX)});
+ function stopDrag(){if(!dragging)return;dragging=false;const max=$('arrowTrack').clientWidth-$('arrowKnob').offsetWidth-10;if(offset>max*.68)openEnvelope();else setOffset(0)}
+ $('arrowKnob').addEventListener('pointerup',stopDrag);$('arrowKnob').addEventListener('pointercancel',stopDrag);
+ $('arrowKnob').addEventListener('click',()=>{if(!opened)setOffset($('arrowTrack').clientWidth-$('arrowKnob').offsetWidth-10)});
+ window.addEventListener('resize',()=>{if(opened)setOffset($('arrowTrack').clientWidth-$('arrowKnob').offsetWidth-10);else setOffset(0)});
+ $('yesBtn').addEventListener('click',()=>{$('yesMessage').classList.add('show');celebrate();toast('YAY! Date kita jadi! 💗')});
+ const no=$('noBtn');
+ function dodge(){const dx=(Math.random()>.5?1:-1)*(45+Math.random()*80),dy=Math.random()>.5?-14:14;no.style.transform=`translate(${dx}px,${dy}px)`;no.textContent=['Hehe nggak bisa 😝','Coba lagi 🙈','Yakin nih? 🥺','Nope! 💗'][Math.floor(Math.random()*4)]}
+ no.addEventListener('pointerenter',dodge);no.addEventListener('click',e=>{e.preventDefault();dodge();toast('Eits, tombol No-nya malu-malu 😝')});no.addEventListener('touchstart',e=>{e.preventDefault();dodge()},{passive:false});
+ $('messageInput').addEventListener('input',e=>$('charCount').textContent=e.target.value.length);
+ function fmtDate(v){if(!v)return 'Belum ditentukan';return new Date(v+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}
+ function buildTicket(){
+   const date=$('dateInput').value,plans=[...document.querySelectorAll('#planChoices input:checked')].map(x=>x.value),dress=document.querySelector('input[name="dress"]:checked');
+   if(!date){toast('Pilih tanggal date dulu ya! 📅');showSlide(2);$('dateInput').focus();return false}
+   if(!plans.length){toast('Pilih minimal satu aktivitas ✨');showSlide(3);return false}
+   if(!dress){toast('Pilih dresscode dulu ya 👗');showSlide(4);return false}
+   $('tName').textContent=$('nameInput').value.trim()||'My favorite person ♡';
+   $('tDate').textContent=fmtDate(date);$('tPlans').textContent=plans.join(' • ');$('tDress').textContent=dress.value;
+   $('tMessage').textContent=$('messageInput').value.trim()||"Can't wait to spend time with you. ♥";
+   $('ticketCode').textContent='LOVE-'+date.replaceAll('-','').slice(-6);
+   showSlide(6);return true;
+ }
+ $('makeTicket').addEventListener('click',buildTicket);
+ $('downloadBtn').addEventListener('click',()=>{
+   const ticket=$('ticket').outerHTML;
+   const css=`*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#fff2f7;color:#4b1730;padding:24px}.ticket{max-width:850px;margin:5vh auto;display:grid;grid-template-columns:1fr 120px;background:white;border:2px solid #a91850;border-radius:20px;overflow:hidden}.ticket-main{padding:26px}.ticket-side{background:#a91850;color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:13px;padding:15px}.heart{font-size:32px}.vertical{writing-mode:vertical-rl;letter-spacing:.18em;font-weight:900;font-size:11px}.code{font-size:10px}.ticket-kicker{font-size:11px;font-weight:900;letter-spacing:.15em;color:#a91850}.ticket-title{font:bold 38px Georgia,serif;color:#a91850;margin:9px 0}.ticket-sub{font-size:13px;color:#95677a;margin-bottom:18px}.ticket-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}.detail-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#95677a;font-weight:900;margin-bottom:5px}.detail-value{font-weight:800;line-height:1.45;overflow-wrap:anywhere}.ticket-message{margin-top:15px;padding:12px;background:#fff2f7;border-radius:12px;white-space:pre-wrap;line-height:1.5}@media(max-width:520px){.ticket{grid-template-columns:1fr}.ticket-side{flex-direction:row}.vertical{writing-mode:initial}}@media print{@page{size:A5 landscape;margin:8mm}body{padding:0;background:white}.ticket{margin:0;max-width:none;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}`;
+   const html='<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Our Date Ticket</title><style>'+css+'</style></head><body>'+ticket+'</body></html>';
+   const url=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='our-date-ticket.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Tiket berhasil diunduh! 🎟️');
+ });
+ $('printBtn').addEventListener('click',()=>window.print());
+ $('shareBtn').addEventListener('click',()=>{
+   const text=`💗 OUR DATE TICKET 💗\nUntuk: ${$('tName').textContent}\nTanggal: ${$('tDate').textContent}\nRencana: ${$('tPlans').textContent}\nDresscode: ${$('tDress').textContent}\nPesan: ${$('tMessage').textContent}\n\nCan't wait for our date! ♥`;
+   if(navigator.share)navigator.share({title:'Our Date Ticket',text}).catch(()=>{});
+   else if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>toast('Detail tiket disalin untuk dikirim lewat chat 💌')).catch(()=>copyFallback(text));
+   else copyFallback(text);
+ });
+ function copyFallback(text){const el=document.createElement('textarea');el.value=text;document.body.appendChild(el);el.select();try{document.execCommand('copy');toast('Detail tiket disalin! Tempel ke chat 💌')}catch(e){toast('Salin detail tiket secara manual ya.')}el.remove()}
+ $('restartBtn').addEventListener('click',()=>{if(!confirm('Mulai ulang dan kosongkan pilihan?'))return;$('dateInput').value='';document.querySelectorAll('#planChoices input').forEach(x=>x.checked=false);document.querySelectorAll('input[name="dress"]').forEach(x=>x.checked=false);$('nameInput').value='';$('messageInput').value='';$('charCount').textContent='0';$('ticketCode').textContent='LOVE-001';$('yesMessage').classList.remove('show');no.style.transform='';no.textContent='No 🙈';opened=false;offset=0;$('envelope').classList.remove('open');$('question').classList.remove('show');$('arrowText').textContent='tarik aku ke kanan →';$('openStatus').textContent='Geser panah atau ketuk panah untuk membuka surat.';setOffset(0);showSlide(0)});
+ function celebrate(){const syms=['💗','💕','💖','♥','✨'];for(let i=0;i<22;i++){const e=document.createElement('span');e.className='confetti';e.textContent=syms[Math.floor(Math.random()*syms.length)];e.style.left=Math.random()*100+'vw';e.style.animationDelay=Math.random()*.7+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}}
+ const now=new Date(),today=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);$('dateInput').min=today;
+})();
+</script>
+</body>
+</html>
